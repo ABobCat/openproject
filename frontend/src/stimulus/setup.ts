@@ -14,6 +14,7 @@ import OpShowWhenValueSelectedController from './controllers/show-when-value-sel
 import FlashController from './controllers/flash.controller';
 import OpProjectsZenModeController from './controllers/dynamic/projects/zen-mode.controller';
 import PasswordConfirmationDialogController from './controllers/password-confirmation-dialog.controller';
+import PreviewController from './controllers/dynamic/work-packages/date-picker/preview.controller';
 
 declare global {
   interface Window {
@@ -43,3 +44,4 @@ instance.register('show-when-checked', OpShowWhenCheckedController);
 instance.register('show-when-value-selected', OpShowWhenValueSelectedController);
 instance.register('table-highlighting', TableHighlightingController);
 instance.register('projects-zen-mode', OpProjectsZenModeController);
+instance.register('work-packages--date-picker--preview', PreviewController);
