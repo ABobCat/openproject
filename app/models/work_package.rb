@@ -243,8 +243,18 @@ class WorkPackage < ApplicationRecord
   end
 
   def visible_relations(user)
-    relations
-      .visible(user)
+    Relation
+      .with(visible_work_packages: self.class.visible(user))
+      .where("#{id} IN (relations.from_id, relations.to_id)")
+      .where(
+        <<~SQL.squish
+          EXISTS (
+            SELECT 1
+            FROM visible_work_packages
+            WHERE visible_work_packages.id IN (relations.from_id, relations.to_id)
+          )
+        SQL
+      )
   end
 
   def add_time_entry(attributes = {})
