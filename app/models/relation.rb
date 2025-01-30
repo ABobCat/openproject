@@ -105,7 +105,8 @@ class Relation < ApplicationRecord
 
   validates :lag, numericality: { allow_nil: true }
 
-  validates :to, uniqueness: { scope: :from }
+  # The primer form depends on to_id being validated
+  validates :to_id, uniqueness: { scope: :from }, presence: true
 
   before_validation :reverse_if_needed
 
