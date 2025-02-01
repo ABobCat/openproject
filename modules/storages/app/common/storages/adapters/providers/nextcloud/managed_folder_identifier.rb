@@ -28,15 +28,29 @@
 # See COPYRIGHT and LICENSE files for more details.
 #++
 
-module Storages::Storages
-  class OneDriveContract < ::ModelContract
-    attribute :host
-    validates :host, absence: true
-    attribute :tenant_id
-    validates :tenant_id, format: { with: /\A(?:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|consumers)\z/i }
-    attribute :drive_id
-    # GRAPH API considers drive ids of 16 characters or shorter as personal drive ids. Those are not supported,
-    # and allowing them lead to unexpected behavior.
-    validates :drive_id, presence: true, allow_nil: true, length: { minimum: 17 }
+module Storages
+  module Adapters
+    module Providers
+      module Nextcloud
+        class ManagedFolderIdentifier
+          def initialize(project_storage)
+            @storage = project_storage.storage
+            @project = project_storage.project
+          end
+
+          def name
+            "#{@project.name.tr('/', '|')} (#{@project.id})"
+          end
+
+          def path
+            "/#{@storage.group_folder}/#{name}/"
+          end
+
+          def location
+            path
+          end
+        end
+      end
+    end
   end
 end

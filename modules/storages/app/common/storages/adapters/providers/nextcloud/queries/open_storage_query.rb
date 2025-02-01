@@ -1,4 +1,4 @@
-# frozen_string_literal:true
+# frozen_string_literal: true
 
 #-- copyright
 # OpenProject is an open source project management software.
@@ -29,18 +29,14 @@
 #++
 
 module Storages
-  module Peripherals
-    module StorageInteraction
-      module AuthenticationStrategies
-        module NextcloudStrategies
-          UserLess = -> do
-            ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::BasicAuth.strategy
-          end
-
-          UserBound = ->(user:) do
-            ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::OAuthUserToken
-              .strategy
-              .with_user(user)
+  module Adapters
+    module Providers
+      module Nextcloud
+        module Queries
+          class OpenStorageQuery < Base
+            def call(**)
+              Success(UrlBuilder.url(@storage.uri, "index.php/apps/files"))
+            end
           end
         end
       end

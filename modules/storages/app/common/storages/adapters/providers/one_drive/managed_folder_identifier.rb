@@ -1,4 +1,4 @@
-# frozen_string_literal:true
+# frozen_string_literal: true
 
 #-- copyright
 # OpenProject is an open source project management software.
@@ -29,29 +29,27 @@
 #++
 
 module Storages
-  module Peripherals
-    module StorageInteraction
-      module AuthenticationStrategies
-        class BasicAuth
-          def self.strategy
-            Strategy.new(:basic_auth)
+  module Adapters
+    module Providers
+      module OneDrive
+        class ManagedFolderIdentifier
+          CHARACTER_BLOCKLIST = /[\\<>+?:"|\/]/
+
+          def initialize(project_storage)
+            @project_storage = project_storage
+            @project = project_storage.project
           end
 
-          def call(storage:, http_options: {})
-            username = storage.username
-            password = storage.password
-
-            return build_failure(storage) if username.blank? || password.blank?
-
-            yield OpenProject.httpx.basic_auth(username, password).with(http_options)
+          def name
+            path
           end
 
-          private
+          def path
+            "#{@project.name.gsub(CHARACTER_BLOCKLIST, '_')} (#{@project.id})"
+          end
 
-          def build_failure(storage)
-            log_message = "Cannot authenticate storage with basic auth. Password or username not configured."
-            data = ::Storages::StorageErrorData.new(source: self.class, payload: storage)
-            Failures::Builder.call(code: :error, log_message:, data:)
+          def location
+            @project_storage.project_folder_id
           end
         end
       end

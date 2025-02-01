@@ -29,17 +29,13 @@
 #++
 
 module Storages
-  module Peripherals
-    module StorageInteraction
-      module Inputs
-        UploadData = Data.define(:folder_id, :file_name) do
-          private_class_method :new
+  module Adapters
+    module Input
+      OpenFileLink = Data.define(:file_id, :open_location) do
+        private_class_method :new
 
-          def self.build(folder_id:, file_name:, contract: UploadDataContract.new)
-            contract.call(folder_id:, file_name:)
-                    .to_monad
-                    .fmap { |result| new(file_name: result[:file_name], folder_id: result[:folder_id]) }
-          end
+        def self.build(file_id:, open_location: false, contract: OpenFileLinkContract.new)
+          contract.call(file_id:, open_location:).to_monad.fmap { new(**it.to_h) }
         end
       end
     end

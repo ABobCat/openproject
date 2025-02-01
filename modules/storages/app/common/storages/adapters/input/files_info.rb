@@ -29,24 +29,14 @@
 #++
 
 module Storages
-  module Peripherals
-    module ManagedFolderIdentifier
-      class Nextcloud
-        def initialize(project_storage)
-          @storage = project_storage.storage
-          @project = project_storage.project
-        end
+  module Adapters
+    module Input
+      # FIXME: Should FileIDs become a Array(Location)?
+      FilesInfo = Data.define(:file_ids) do
+        private_class_method :new
 
-        def name
-          "#{@project.name.tr('/', '|')} (#{@project.id})"
-        end
-
-        def path
-          "/#{@storage.group_folder}/#{name}/"
-        end
-
-        def location
-          path
+        def self.build(file_ids:, contract: FilesInfoContract.new)
+          contract.call(file_ids:).to_monad.fmap { |it| new(**it.to_h) }
         end
       end
     end

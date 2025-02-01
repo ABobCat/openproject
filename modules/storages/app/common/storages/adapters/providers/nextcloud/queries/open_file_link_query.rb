@@ -29,13 +29,16 @@
 #++
 
 module Storages
-  module Peripherals
-    module StorageInteraction
-      module Inputs
-        class UploadDataContract < Dry::Validation::Contract
-          params do
-            required(:folder_id).filled(:string)
-            required(:file_name).filled(:string)
+  module Adapters
+    module Providers
+      module Nextcloud
+        module Queries
+          class OpenFileLinkQuery < Base
+            def call(input_data:, **)
+              location_flag = input_data.open_location ? 0 : 1
+              url = UrlBuilder.url(@storage.uri, "index.php/f/#{input_data.file_id}") + "?openfile=#{location_flag}"
+              Success(url)
+            end
           end
         end
       end
