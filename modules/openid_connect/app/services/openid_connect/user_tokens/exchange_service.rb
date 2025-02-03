@@ -57,10 +57,12 @@ module OpenIDConnect
         json = yield exchange_token_request(idp_token, audience)
 
         access_token = json["access_token"]
-        refresh_token = json["refresh_token"]
+        # refresh_token = json["refresh_token"]
         return Failure("Token exchange response invalid") if access_token.blank?
 
-        token = store_exchanged_token(audience:, access_token:, refresh_token:)
+        # do not store refresh token of the exchanged token,
+        # because using it for a refresh causes a loss of audiences
+        token = store_exchanged_token(audience:, access_token:, refresh_token: nil)
         Success(token)
       end
 

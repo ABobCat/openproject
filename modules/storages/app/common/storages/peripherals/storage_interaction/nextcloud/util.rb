@@ -70,6 +70,8 @@ module Storages
               case auth_strategy.key
               when :basic_auth
                 ServiceResult.success(result: storage.username)
+              when :sso_user_token
+                ServiceResult.success(result: auth_strategy.user.login)
               when :oauth_user_token
                 origin_user_id = RemoteIdentity.where(user_id: auth_strategy.user, oauth_client: storage.oauth_client)
                                                .pick(:origin_user_id)
@@ -85,7 +87,7 @@ module Storages
                 failure(code: :error,
                         data: StorageErrorData.new(source: caller),
                         log_message: "No authentication strategy with user context found. " \
-                                     "Cannot execute query without user context.")
+                          "Cannot execute query without user context.")
               end
             end
 

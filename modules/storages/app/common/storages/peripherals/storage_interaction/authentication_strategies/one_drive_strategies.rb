@@ -37,7 +37,7 @@ module Storages
             ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::OAuthClientCredentials.strategy
           end
 
-          UserBound = ->(user:) do
+          UserBound = ->(user:, storage:) do
             ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::OAuthUserToken
               .strategy
               .with_user(user)

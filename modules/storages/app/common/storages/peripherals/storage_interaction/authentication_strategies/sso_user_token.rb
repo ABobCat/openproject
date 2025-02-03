@@ -32,21 +32,28 @@ module Storages
   module Peripherals
     module StorageInteraction
       module AuthenticationStrategies
-        module NextcloudStrategies
-          UserLess = -> do
-            ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::BasicAuth.strategy
+        class SsoUserToken
+          def self.strategy
+            Strategy.new(:sso_user_token)
           end
 
-          UserBound = ->(user:, storage:) do
-            if user.id == 31
-              ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::SsoUserToken
-                .strategy
-                .with_user(user)
-            else
-              ::Storages::Peripherals::StorageInteraction::AuthenticationStrategies::OAuthUserToken
-                .strategy
-                .with_user(user)
-            end
+          def initialize(user)
+            @user = user
+          end
+
+          def call(storage:, http_options: {}, &)
+            OpenIDConnect::UserTokens::FetchService
+              .new(user: @user)
+              .access_token_for(audience: storage.nextcloud_audience)
+              .either(
+                ->(token) do
+                  opts = http_options.deep_merge({ headers: { "Authorization" => "Bearer #{token}" } })
+                  yield OpenProject.httpx.with(opts)
+                end,
+                ->(error) do
+                  Failures::Builder.call(code: :unauthorized, log_message: error.message)
+                end
+              )
           end
         end
       end
